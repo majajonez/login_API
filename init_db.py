@@ -16,10 +16,9 @@ try:
                                          'haslo text NOT NULL);'
                                          )
 
-        cur.execute('INSERT INTO logowanie_uzytkownikow (id, login, haslo)'
-                    'VALUES (%s, %s, %s)',
-                    ('1',
-                     'maja',
+        cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo)'
+                    'VALUES (%s, %s)',
+                    ('maja',
                      '123')
                     )
 
