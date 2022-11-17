@@ -8,7 +8,7 @@ from time import perf_counter_ns
 
 def debug(funkcja):
     def wewnetrzna(*args):
-        print("naza f: " + str(funkcja.__name__))           # wypisanie nazwy wywolanej funkcji
+        print("nazwa f: " + str(funkcja.__name__))           # wypisanie nazwy wywolanej funkcji
         t = perf_counter_ns()
         w = funkcja(*args)
         t = perf_counter_ns() - t
@@ -26,7 +26,7 @@ def f_do_dekorowania(m, n):
     print("wewnatrz dupa")
     a = 2 + m
     b = 3 + n
-    return a
+    return a, b
 
 
 def razy2(f):
@@ -77,3 +77,22 @@ f_do_dekorowania(2, 3)
 #     print('blabla')
 #
 # blabla()
+
+def dekorator(funkcja):
+    def wewnetrzna(*args):
+        indeks = 0
+        for a in args:
+            print(a)
+            indeks += 1
+    return wewnetrzna
+
+@dekorator
+def f_testowa(a, b, c, d):
+    x = a + b + c + d
+
+f_testowa("fdefe", 5, 0, "iud")
+
+l = [1, 2, 3, 4]
+m = map(lambda x,y : x + y, l, l)
+for a in m:
+    print(a)
