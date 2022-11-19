@@ -21,15 +21,6 @@ def get_db_connection():
     return conn
 
 
-def get_users():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM logowanie_uzytkownikow;')
-    uzytkownicy = cur.fetchall()
-    cur.close()
-    conn.close()
-    return uzytkownicy
-
 def get_user(x):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -47,18 +38,10 @@ def index():
     return json.dumps(uzytkownicy)
 
 
-# @app.route('/')
-# def index():
-#     return redirect(url_for('login'))
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # uzytkownicy = get_users()
-
     if request.method == 'POST':
         args = request.args
-        # uzytkownik = list(filter(lambda u: args.get("user", "") == u[1], uzytkownicy))
         uzytkownik = get_user(args.get("user", ""))
         if uzytkownik:
             if args.get("password", "") == uzytkownik[0][2]:
