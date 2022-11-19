@@ -12,14 +12,16 @@ try:
     try:
         cur.execute('DROP TABLE IF EXISTS logowanie_uzytkownikow;')
         cur.execute('CREATE TABLE logowanie_uzytkownikow (id serial PRIMARY KEY,'
-                                         'login text NOT NULL,'
+                                         'login text NOT NULL UNIQUE,'
                                          'haslo text NOT NULL);'
+                                         'email text NOT NULL UNIQUE'
                                          )
 
         cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo)'
                     'VALUES (%s, %s)',
                     ('maja',
-                     '123')
+                     '123',
+                     'majonezik93@gmail.com')
                     )
 
         conn.commit()

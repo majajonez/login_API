@@ -1,5 +1,5 @@
 import os
-import psycopg2
+import psycopg2, re
 from flask import Flask, Response, redirect, url_for, request, make_response, render_template
 from flask_caching import Cache
 import json
@@ -11,7 +11,8 @@ config = {
 app = Flask(__name__)
 # tell Flask to use the above defined config
 app.config.from_mapping(config)
-cache = Cache(app)
+
+regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
 
 def get_db_connection():
     conn = psycopg2.connect(host='localhost',
@@ -32,10 +33,11 @@ def get_user(x):
     return uzytkownik
 
 
-@app.route('/')
-def index():
-    uzytkownicy = get_users()
-    return json.dumps(uzytkownicy)
+# @app.route('/')
+# def index():
+#     uzytkownicy = get_users()
+#     return json.dumps(uzytkownicy)
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -60,20 +62,29 @@ def register():
     args = request.args
     user = args.get("user", None)
     password = args.get("password", None)
-    if user and password:
+    email = args.get("email", None)
+    if not re.fullmatch(regex, email):
+        return make_response("<i>Niepoprawny email</i>")
+
+    if user and password and email:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo)'
-                    'VALUES (%s, %s)',
-                    (user,
-                     password)
-                    )
-        conn.commit()
-        cur.close()
-        conn.close()
-        return make_response("<i>rejestracja przebiegla pomyslnie</i>", 200)
+        try:
+            cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo, email)'
+                        'VALUES (%s, %s, %s)',
+                        (user,
+                         password,
+                         email)
+                        )
+            conn.commit()
+            cur.close()
+            conn.close()
+            return make_response("<i>rejestracja przebiegla pomyslnie</i>", 200)
+        except:
+            return make_response("<i>ten login lub email jest już zajęty</i>")
     else:
         return make_response("<i> rejestracja sie nie udala</i>")
+
 
 
 @app.route('/aa')
