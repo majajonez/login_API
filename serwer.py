@@ -1,5 +1,5 @@
 import os
-import psycopg2, re
+import psycopg2, re, hashlib
 from flask import Flask, Response, redirect, url_for, request, make_response, render_template
 from flask_caching import Cache
 import json
@@ -46,7 +46,9 @@ def login():
         args = request.args
         uzytkownik = get_user(args.get("user", ""))
         if uzytkownik:
-            if args.get("password", "") == uzytkownik[0][2]:
+            password = args.get("password", "")
+            password2 = hashlib.sha256(password.encode('utf-8')).hexdigest()
+            if password2 == uzytkownik[0][2]:
                 return "<b>Witaj " + args["user"] + "</b>"
             else:
                 return "<b>bledne haslo</b>"
@@ -67,13 +69,14 @@ def register():
         return make_response("<i>Niepoprawny email</i>")
 
     if user and password and email:
+        password2 = hashlib.sha256(password.encode('utf-8')).hexdigest()
         conn = get_db_connection()
         cur = conn.cursor()
         try:
             cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo, email)'
                         'VALUES (%s, %s, %s)',
                         (user,
-                         password,
+                         password2,
                          email)
                         )
             conn.commit()

@@ -1,26 +1,29 @@
 import os
-import psycopg2
+import psycopg2, hashlib
 
 conn = psycopg2.connect(
         host="localhost",
         database="postgres",
         user="postgres",
         password="mysecretpassword")
+
+h = '123'
+haslo = hashlib.sha256(h.encode('utf-8')).hexdigest()
 try:
     cur = conn.cursor()
 
     try:
         cur.execute('DROP TABLE IF EXISTS logowanie_uzytkownikow;')
         cur.execute('CREATE TABLE logowanie_uzytkownikow (id serial PRIMARY KEY,'
-                                         'login text NOT NULL UNIQUE,'
-                                         'haslo text NOT NULL);'
-                                         'email text NOT NULL UNIQUE'
+                                        'login text NOT NULL UNIQUE,'
+                                        'haslo text NOT NULL,'
+                                        'email text NOT NULL UNIQUE);'
                                          )
 
-        cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo)'
-                    'VALUES (%s, %s)',
+        cur.execute('INSERT INTO logowanie_uzytkownikow (login, haslo, email)'
+                    'VALUES (%s, %s, %s)',
                     ('maja',
-                     '123',
+                     haslo,
                      'majonezik93@gmail.com')
                     )
 
@@ -31,3 +34,4 @@ try:
 
 finally:
     conn.close()
+
